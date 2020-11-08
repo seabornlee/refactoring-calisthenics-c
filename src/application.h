@@ -22,4 +22,5 @@ LinkedList *findApplicants(Application *pApplication, char *jobName, char *emplo
 LinkedList *findApplicantsFrom(Application *pApplication, char *jobName, char *employerName, char *from);
 LinkedList *findApplicantsIn(Application *pApplication, char *jobName, char *employerName, char *from, char *to);
 char *exportTo(Application *pApplication, char *type, char *date);
+int getSuccessfulApplications(Application *pApplication, char *employerName, char *jobName);
 #endif //REFACTOR_CALISTHENICS_C_APPLICATION_H

@@ -327,3 +327,25 @@ TEST(ApplicationTest,
                  "<tr><td>Alibaba</td><td>Senior Java Developer</td><td>JReq</td><td>Lam</td><td>1999-12-20</td></tr>"
                  "</tbody></table></body></html>");
 }
+
+TEST(ApplicationTest, should_be_able_to_see_successful_application_of_a_job_for_an_employer) {
+    char *employerAlibaba = "Alibaba";
+    char *employerTencent = "Tencent";
+    char *jobSeekerJacky = "Jacky";
+    char *jobSeekerHo = "Ho";
+    char *jobSeekerLam = "Lam";
+    char *seniorJavaDevJob = "高级Java开发";
+    char *juniorJavaDevJob = "Java开发";
+
+    Application *pApplication = newApplication();
+    execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "ATS", NULL, NULL, NULL);
+    execute(pApplication, "publish", employerAlibaba, juniorJavaDevJob, "ATS", NULL, NULL, NULL);
+    execute(pApplication, "publish", employerTencent, juniorJavaDevJob, "ATS", NULL, NULL, NULL);
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerJacky, NULL, now());
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerLam, NULL, now());
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerHo, NULL, now());
+    execute(pApplication, "apply", employerTencent, juniorJavaDevJob, "ATS", jobSeekerHo, NULL, now());
+
+    ASSERT_EQ(2, getSuccessfulApplications(pApplication, employerAlibaba, seniorJavaDevJob));
+    ASSERT_EQ(1, getSuccessfulApplications(pApplication, employerAlibaba, juniorJavaDevJob));
+}

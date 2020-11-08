@@ -324,3 +324,23 @@ char *exportTo(Application *pApplication, char *type, char *date) {
         return strdup(result);
     }
 }
+
+int getSuccessfulApplications(Application *pApplication, char *employerName, char *jobName) {
+    int count = 0;
+    LinkedMap *pMap = pApplication->applied;
+
+    LinkedList *keys = keysOf(pMap);
+    for (int i = 0; i < len(keys); ++i) {
+        char *applicant = getItem(keys, i);
+        LinkedList *jobs = getItemBy(pMap, applicant);
+        for (int j = 0; j < len(jobs); ++j) {
+            LinkedList *job = getItem(jobs, j);
+
+            char *_jobName = getItem(job, 0);
+            if (strcmp(jobName, _jobName) == 0 && strcmp(employerName, getItem(job, 3)) == 0) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
