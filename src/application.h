@@ -7,6 +7,7 @@
 #include "command.h"
 #include "job_type.h"
 #include "file_type.h"
+#include "job_status.h"
 
 typedef struct application {
     LinkedMap *jobs;
@@ -21,7 +22,7 @@ execute(Application *application, enum Command command, char *employerName, char
         char *resumeApplicantName,
         char *applicationTime);
 
-LinkedList *getJobs(Application *pApplication, char *employerName, const char *type);
+LinkedList *getJobs(Application *pApplication, char *employerName, enum JobStatus jobStatus);
 LinkedList *findApplicants(Application *pApplication, char *jobName, char *employerName);
 LinkedList *findApplicantsFrom(Application *pApplication, char *jobName, char *employerName, char *from);
 LinkedList *findApplicantsIn(Application *pApplication, char *jobName, char *employerName, char *from, char *to);

@@ -20,7 +20,7 @@ TEST(ApplicationTest, employers_should_be_able_to_publish_a_job) {
     char *jobName = "高级前端开发";
     Application *pApplication = newApplication();
     execute(pApplication, PUBLISH, employerName, jobName, JReq, NULL, NULL, NULL);
-    LinkedList *jobs = getJobs(pApplication, employerName, "published");
+    LinkedList *jobs = getJobs(pApplication, employerName, PUBLISHED);
     LinkedList *job = static_cast<LinkedList *>(getItem(jobs, 0));
 
     ASSERT_STREQ("高级前端开发", (char *) getItem(job, 0));
@@ -36,7 +36,7 @@ TEST(ApplicationTest, employers_should_only_be_able_to_see_jobs_published_by_the
     Application *pApplication = newApplication();
     execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, JReq, NULL, NULL, NULL);
     execute(pApplication, PUBLISH, employerTencent, juniorJavaDevJob, JReq, NULL, NULL, NULL);
-    LinkedList *jobs = getJobs(pApplication, employerAlibaba, "published");
+    LinkedList *jobs = getJobs(pApplication, employerAlibaba, PUBLISHED);
     ASSERT_EQ(1, len(jobs));
     LinkedList *job = (LinkedList *) getItem(jobs, 0);
     ASSERT_STREQ("高级Java开发", (char *) getItem(job, 0));
@@ -47,7 +47,7 @@ TEST(ApplicationTest, employers_should_be_able_to_publish_ATS_jobs) {
     char *seniorJavaDevJob = "高级Java开发";
     Application *pApplication = newApplication();
     execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, ATS, NULL, NULL, NULL);
-    LinkedList *jobs = getJobs(pApplication, employerAlibaba, "published");
+    LinkedList *jobs = getJobs(pApplication, employerAlibaba, PUBLISHED);
     LinkedList *job = (LinkedList *) getItem(jobs, 0);
     ASSERT_STREQ("高级Java开发", (char *) getItem(job, 0));
     ASSERT_STREQ("ATS", (char *) getItem(job, 1));
@@ -61,7 +61,7 @@ TEST(ApplicationTest, jobseekers_should_be_able_to_save_jobs_published_by_employ
     execute(pApplication, PUBLISH, employerAlibaba, jobName, JReq, NULL, NULL, NULL);
     execute(pApplication, SAVE, jobSeekerName, jobName, JReq, NULL, NULL, NULL);
 
-    LinkedList *jobs = getJobs(pApplication, jobSeekerName, "published");
+    LinkedList *jobs = getJobs(pApplication, jobSeekerName, PUBLISHED);
     LinkedList *job = (LinkedList *) getItem(jobs, 0);
 
     ASSERT_STREQ("高级Java开发", (char *) getItem(job, 0));
@@ -80,7 +80,7 @@ TEST(Application, jobseekers_should_be_able_to_apply_for_an_ATS_job_some_employe
 
     execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerName, NULL, "2020-01-01");
     execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, ATS, jobSeekerName, NULL, "2020-01-01");
-    LinkedList *jobs = getJobs(pApplication, jobSeekerName, "applied");
+    LinkedList *jobs = getJobs(pApplication, jobSeekerName, APPLIED);
 
     LinkedList *job1 = (LinkedList *) getItem(jobs, 0);
 

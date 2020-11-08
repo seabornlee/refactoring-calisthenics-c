@@ -17,8 +17,8 @@ Application *newApplication() {
     return pApplication;
 }
 
-LinkedList *getJobs(Application *pApplication, char *employerName, const char *type) {
-    if (strcmp(type, "applied") == 0) {
+LinkedList *getJobs(Application *pApplication, char *employerName, enum JobStatus jobStatus) {
+    if (jobStatus == APPLIED) {
         return getItemBy(pApplication->applied, employerName);
     }
     return getItemBy(pApplication->jobs, employerName);
