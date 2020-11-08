@@ -4,18 +4,24 @@
 #include "stdio.h"
 
 void putItem(LinkedMap *map, char *key, void *value) {
+    LinkedMap *p = map;
+    LinkedMap *prev = p;
+    do {
+        if (p->key != NULL && strcmp(p->key, key) == 0) {
+            p->value = value;
+            return;
+        }
+        prev = p;
+        p = p->next;
+    } while (p != NULL);
+
     LinkedMap *node = (LinkedMap *) malloc(sizeof(LinkedMap));
 
     node->key = key;
     node->value = value;
     node->next = NULL;
 
-    LinkedMap *p = map;
-    while (p->next != NULL) {
-        p = p->next;
-    }
-
-    p->next = node;
+    prev->next = node;
 }
 
 void *getItemBy(LinkedMap *map, char *key) {

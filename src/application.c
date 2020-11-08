@@ -252,11 +252,46 @@ findApplicantsIn(Application *pApplication, char *jobName, char *employerName, c
                 strptime(to, "%Y-%m-%d", &tmTo);
 
                 char *_jobName = getItem(job, 0);
-                if (strcmp(jobName, _jobName) == 0 && mktime(&appliedAt) >= mktime(&tmFrom) && mktime(&appliedAt) <= mktime(&tmTo)) {
+                if (strcmp(jobName, _jobName) == 0 && mktime(&appliedAt) >= mktime(&tmFrom) &&
+                    mktime(&appliedAt) <= mktime(&tmTo)) {
                     addLast(pList, applicant);
                 }
             }
         }
         return pList;
     }
+}
+
+char *exportTo(Application *pApplication, char *type, char *date) {
+    if (strcmp(type, "csv") == 0) {
+        LinkedMap *pMap = pApplication->applied;
+
+        char res[1024] = {0};
+        LinkedList *keys = keysOf(pMap);
+
+        for (int i = 0; i < len(keys); ++i) {
+            char *applicant = getItem(keys, i);
+            LinkedList *jobs = getItemBy(pMap, applicant);
+            for (int j = 0; j < len(jobs); ++j) {
+                LinkedList *job = getItem(jobs, j);
+                struct tm appliedAt = {0};
+                strptime(getItem(job, 2), "%Y-%m-%d", &appliedAt);
+
+                struct tm tmDate = {0};
+                strptime(date, "%Y-%m-%d", &tmDate);
+
+                if (mktime(&appliedAt) == mktime(&tmDate)) {
+                    char str[200];
+                    sprintf(str, "%s,%s,%s,%s,%s\n", getItem(job, 3), getItem(job, 0), getItem(job, 1), applicant, getItem(job, 2));
+                    strcat(res, str);
+                }
+            }
+        }
+
+        char result[1024] = {0};
+        strcat(result, "Employer,Job,Job Type,Applicants,Date\n");
+        strcat(result, res);
+        return strdup(result);
+    }
+    return NULL;
 }

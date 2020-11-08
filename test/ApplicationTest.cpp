@@ -257,8 +257,41 @@ TEST(ApplicationTest,
     execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerHo, NULL, "1998-01-01");
     execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerLam, NULL, "1999-12-20");
 
-    LinkedList *applicants = findApplicantsIn(pApplication, juniorJavaDevJob, employerAlibaba, "1997-01-01", "1999-01-01");
+    LinkedList *applicants = findApplicantsIn(pApplication, juniorJavaDevJob, employerAlibaba, "1997-01-01",
+                                              "1999-01-01");
 
     ASSERT_STREQ("Ho", (char *) getItem(applicants, 0));
     ASSERT_EQ(1, len(applicants));
+}
+
+TEST(ApplicationTest,
+     should_generator_csv_reports_of_all_jobseekers_on_a_given_date) {
+    char *employerAlibaba = "Alibaba";
+    char *jobSeekerJacky = "Jacky";
+    char *jackyResume = "Jacky";
+    char *jobSeekerHo = "Ho";
+    char *jobSeekerLam = "Lam";
+    char *lamResume = "Lam";
+    char *seniorJavaDevJob = "Senior Java Developer";
+    char *juniorJavaDevJob = "Java Developer";
+
+    Application *pApplication = newApplication();
+    execute(pApplication, "publish", employerAlibaba, juniorJavaDevJob, "ATS", NULL, NULL, NULL);
+    execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "JReq", NULL, NULL, NULL);
+
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerJacky, NULL, "1997-07-01");
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "JReq", jobSeekerJacky, jackyResume,
+            "1999-12-20");
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerHo, NULL, "1999-12-20");
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerLam, NULL, "1999-12-20");
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "JReq", jobSeekerLam, lamResume, "1999-12-20");
+
+    char *csv = exportTo(pApplication, "csv", "1999-12-20");
+    ASSERT_STREQ(csv,
+                 "Employer,Job,Job Type,Applicants,Date\n"
+                 "Alibaba,Senior Java Developer,JReq,Jacky,1999-12-20\n"
+                 "Alibaba,Java Developer,ATS,Ho,1999-12-20\n"
+                 "Alibaba,Java Developer,ATS,Lam,1999-12-20\n"
+                 "Alibaba,Senior Java Developer,JReq,Lam,1999-12-20\n"
+    );
 }

@@ -64,3 +64,13 @@ TEST(LinkedListTest, should_get_keys) {
     ASSERT_STREQ("hello", (char *) getItem(keys, 0));
     ASSERT_STREQ("good", (char *) getItem(keys, 1));
 }
+
+TEST(LinkedListTest, should_override_when_put_existed_key) {
+    LinkedMap *map = newLinkedMap();
+    putItem(map, "hello", (void *) "world");
+    putItem(map, "hello", (void *) "bye");
+    LinkedList *keys = keysOf(map);
+    ASSERT_EQ(1, len(keys));
+    ASSERT_STREQ("hello", (char *) getItem(keys, 0));
+    ASSERT_STREQ("bye", (char *) getItemBy(map, "hello"));
+}
