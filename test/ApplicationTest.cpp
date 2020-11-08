@@ -207,10 +207,32 @@ TEST(ApplicationTest,
     execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "JReq", NULL, NULL, NULL);
 
     execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerJacky, NULL, "1997-07-01");
-    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "JReq", jobSeekerJacky, resumeApplicantName, "1999-12-20");
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "JReq", jobSeekerJacky, resumeApplicantName,
+            "1999-12-20");
     execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerHo, NULL, "1999-12-20");
 
     LinkedList *applicants = findApplicantsFrom(pApplication, seniorJavaDevJob, employerAlibaba, "1999-12-20");
+
+    ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
+}
+
+TEST(ApplicationTest,
+     employers_should_be_able_to_find_applicants_to_a_job_by_job_name_and_period_when_period_end_is_given_while_period_start_is_not) {
+    char *employerAlibaba = "Alibaba";
+    char *jobSeekerJacky = "Jacky";
+    char *jobSeekerHo = "Ho";
+    char *seniorJavaDevJob = "高级Java开发";
+    char *juniorJavaDevJob = "Java开发";
+
+    Application *pApplication = newApplication();
+    execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "ATS", NULL, NULL, NULL);
+    execute(pApplication, "publish", employerAlibaba, juniorJavaDevJob, "ATS", NULL, NULL, NULL);
+
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerJacky, NULL, "1997-07-01");
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerJacky, NULL, "1997-07-01");
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerHo, NULL, "1999-12-20");
+
+    LinkedList *applicants = findApplicantsIn(pApplication, seniorJavaDevJob, employerAlibaba, NULL, "1999-01-01");
 
     ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
 }
