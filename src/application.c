@@ -5,65 +5,6 @@
 #include "linked_list.h"
 #include "linked_map.h"
 
-int
-execute(Application *application, char *command, char *employerName, char *jobName, char *jobType, char *jobSeekerName,
-        char *resumeApplicantName,
-        char *applicationTime) {
-    if (strcmp(command, "publish") == 0) {
-        if (strcmp(jobType, "JReq") != 0 && strcmp(jobType, "ATS") != 0) {
-            return 400;
-        }
-
-        LinkedList *job = newLinkedList();
-        addLast(job, jobName);
-        addLast(job, jobType);
-
-        LinkedList *alreadyPublished = getOrDefault(application->jobs, employerName, newLinkedList());
-        addLast(alreadyPublished, job);
-
-        putItem(application->jobs, employerName, alreadyPublished);
-    } else if (strcmp(command, "save") == 0) {
-        LinkedList *job = newLinkedList();
-        addLast(job, jobName);
-        addLast(job, jobType);
-
-        LinkedList *saved = getOrDefault(application->jobs, employerName, newLinkedList());
-        addLast(saved, job);
-
-        putItem(application->jobs, employerName, saved);
-    } else if (strcmp(command, "apply") == 0) {
-
-        if (strcmp(jobType, "JReq") == 0 && resumeApplicantName == NULL) {
-            LinkedList *failedApplication = newLinkedList();
-            addLast(failedApplication, jobName);
-            addLast(failedApplication, jobType);
-            addLast(failedApplication, applicationTime);
-            addLast(failedApplication, employerName);
-            addLast(application->failedApplications, failedApplication);
-            printf("需要提供简历才能申请 JReq 类型的工作\r\n");
-            return 401;
-        }
-
-        if (strcmp(jobType, "JReq") == 0 && strcmp(jobSeekerName, resumeApplicantName) != 0) {
-            printf("请用自己的简历申请工作\r\n");
-            return 402;
-        }
-
-        LinkedList *job = newLinkedList();
-        addLast(job, jobName);
-        addLast(job, jobType);
-
-        addLast(job, applicationTime);
-        addLast(job, employerName);
-
-        LinkedList *saved = getOrDefault(application->applied, jobSeekerName, newLinkedList());
-        addLast(saved, job);
-        putItem(application->applied, jobSeekerName, saved);
-    }
-
-    return 0;
-}
-
 Application *newApplication() {
     Application *pApplication = (Application *) malloc(sizeof(Application));
     if (pApplication == NULL) {
@@ -357,4 +298,63 @@ int getUnsuccessfulApplications(Application *pApplication, char *employerName, c
         }
     }
     return count;
+}
+
+int execute(Application *application, enum Command command, char *employerName, char *jobName, char *jobType,
+            char *jobSeekerName, char *resumeApplicantName, char *applicationTime) {
+    {
+        if (command == PUBLISH) {
+            if (strcmp(jobType, "JReq") != 0 && strcmp(jobType, "ATS") != 0) {
+                return 400;
+            }
+
+            LinkedList *job = newLinkedList();
+            addLast(job, jobName);
+            addLast(job, jobType);
+
+            LinkedList *alreadyPublished = getOrDefault(application->jobs, employerName, newLinkedList());
+            addLast(alreadyPublished, job);
+
+            putItem(application->jobs, employerName, alreadyPublished);
+        } else if (command == SAVE) {
+            LinkedList *job = newLinkedList();
+            addLast(job, jobName);
+            addLast(job, jobType);
+
+            LinkedList *saved = getOrDefault(application->jobs, employerName, newLinkedList());
+            addLast(saved, job);
+
+            putItem(application->jobs, employerName, saved);
+        } else if (command == APPLY) {
+
+            if (strcmp(jobType, "JReq") == 0 && resumeApplicantName == NULL) {
+                LinkedList *failedApplication = newLinkedList();
+                addLast(failedApplication, jobName);
+                addLast(failedApplication, jobType);
+                addLast(failedApplication, applicationTime);
+                addLast(failedApplication, employerName);
+                addLast(application->failedApplications, failedApplication);
+                printf("需要提供简历才能申请 JReq 类型的工作\r\n");
+                return 401;
+            }
+
+            if (strcmp(jobType, "JReq") == 0 && strcmp(jobSeekerName, resumeApplicantName) != 0) {
+                printf("请用自己的简历申请工作\r\n");
+                return 402;
+            }
+
+            LinkedList *job = newLinkedList();
+            addLast(job, jobName);
+            addLast(job, jobType);
+
+            addLast(job, applicationTime);
+            addLast(job, employerName);
+
+            LinkedList *saved = getOrDefault(application->applied, jobSeekerName, newLinkedList());
+            addLast(saved, job);
+            putItem(application->applied, jobSeekerName, saved);
+        }
+
+        return 0;
+    }
 }
