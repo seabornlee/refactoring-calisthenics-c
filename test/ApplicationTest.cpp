@@ -5,8 +5,13 @@ extern "C" {
 #include <linked_list.h>
 }
 
-tm *now() {
-    return reinterpret_cast<tm *>(std::time(nullptr));
+char *now() {
+    std::time_t t = std::time(0);   // get time now
+    std::tm* now = std::localtime(&t);
+
+    char buf[256] = {0};
+    sprintf(buf, "%d-%d-%d", now->tm_year, now->tm_mon + 1, now->tm_mday);
+    return strdup(buf);
 }
 
 TEST(ApplicationTest, employers_should_be_able_to_publish_a_job) {
@@ -80,10 +85,8 @@ TEST(Application, jobseekers_should_be_able_to_apply_for_an_ATS_job_some_employe
     execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "ATS", NULL, NULL, NULL);
     execute(pApplication, "publish", employerAlibaba, juniorJavaDevJob, "ATS", NULL, NULL, NULL);
 
-    struct tm tm = {0};
-    strptime("2020-01-01", "%Y-%m-%d", &tm);
-    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerName, NULL, &tm);
-    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerName, NULL, &tm);
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerName, NULL, "2020-01-01");
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerName, NULL, "2020-01-01");
     LinkedList *jobs = getJobs(pApplication, jobSeekerName, "applied");
 
     LinkedList *job1 = (LinkedList *) getItem(jobs, 0);
@@ -140,4 +143,24 @@ TEST(ApplicationTest, employers_should_be_able_to_find_applicants_of_a_job) {
 
     ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
     ASSERT_STREQ("Lam", (char *) getItem(applicants, 1));
+}
+
+TEST(ApplicationTest, employers_should_be_able_to_find_applicants_to_a_job_by_application_date) {
+    char *employerAlibaba = "Alibaba";
+    char *jobSeekerJacky = "Jacky";
+    char *jobSeekerHo = "Ho";
+    char *seniorJavaDevJob = "高级Java开发";
+    Application *pApplication = newApplication();
+    execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "ATS", NULL, NULL, NULL);
+
+    struct tm from1997 = {0};
+    strptime("1997-07-01", "%Y-%m-%d", &from1997);
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerJacky, NULL, "1997-07-01");
+
+    struct tm from1999 = {0};
+    strptime("1999-12-20", "%Y-%m-%d", &from1999);
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerHo, NULL, "1999-12-20");
+    LinkedList *applicants = findApplicantsFrom(pApplication, NULL, employerAlibaba, "1999-12-20");
+
+    ASSERT_STREQ("Ho", (char *) getItem(applicants, 0));
 }

@@ -8,7 +8,7 @@
 int
 execute(Application *application, char *command, char *employerName, char *jobName, char *jobType, char *jobSeekerName,
         char *resumeApplicantName,
-        struct tm *applicationTime) {
+        char *applicationTime) {
     if (strcmp(command, "publish") == 0) {
         if (strcmp(jobType, "JReq") != 0 && strcmp(jobType, "ATS") != 0) {
             return 400;
@@ -53,10 +53,7 @@ execute(Application *application, char *command, char *employerName, char *jobNa
         addLast(job, jobName);
         addLast(job, jobType);
 
-        char buf[256] = {0};
-        strftime(buf, 256, "%Y-%m-%d", &applicationTime);
-
-        addLast(job, strdup(buf));
+        addLast(job, applicationTime);
         addLast(job, employerName);
 
         LinkedList *saved = getOrDefault(application->applied, jobSeekerName, newLinkedList());
@@ -89,12 +86,12 @@ LinkedList *findApplicants(Application *pApplication, char *jobName, char *emplo
     return findApplicantsFrom(pApplication, jobName, employerName, NULL);
 }
 
-LinkedList *findApplicantsFrom(Application *pApplication, char *jobName, char *employerName, struct tm *from) {
+LinkedList *findApplicantsFrom(Application *pApplication, char *jobName, char *employerName, char *from) {
     return findApplicantsIn(pApplication, jobName, employerName, from, NULL);
 }
 
 LinkedList *
-findApplicantsIn(Application *pApplication, char *jobName, char *employerName, struct tm *from, struct tm *to) {
+findApplicantsIn(Application *pApplication, char *jobName, char *employerName, char *from, char *to) {
     if (from == NULL && to == NULL) {
         LinkedList *pList = newLinkedList();
 
@@ -113,6 +110,30 @@ findApplicantsIn(Application *pApplication, char *jobName, char *employerName, s
             }
         }
         return pList;
+    } else if (jobName == NULL && to == NULL) {
+        LinkedList *pList = newLinkedList();
+
+        LinkedMap *pMap = pApplication->applied;
+
+        LinkedList *keys = keysOf(pMap);
+        for (int i = 0; i < len(keys); ++i) {
+            char *applicant = getItem(keys, i);
+            LinkedList *jobs = getItemBy(pMap, applicant);
+            for (int j = 0; j < len(jobs); ++j) {
+                LinkedList *job = getItem(jobs, 0);
+                struct tm appliedAt = {0};
+                strptime(getItem(job, 2), "%Y-%m-%d", &appliedAt);
+
+                struct tm tmFrom = {0};
+                strptime(from, "%Y-%m-%d", &tmFrom);
+
+                if (mktime(&appliedAt) >= mktime(&tmFrom)) {
+                    addLast(pList, applicant);
+                }
+            }
+        }
+        return pList;
+
     }
     return NULL;
 }
