@@ -204,8 +204,8 @@ findApplicantsIn(Application *pApplication, char *jobName, char *employerName, c
     }
 }
 
-char *exportTo(Application *pApplication, char *type, char *date) {
-    if (strcmp(type, "csv") == 0) {
+char *exportTo(Application *pApplication, enum FileType type, char *date) {
+    if (type == CSV) {
         LinkedMap *pMap = pApplication->applied;
 
         char res[1024] = {0};

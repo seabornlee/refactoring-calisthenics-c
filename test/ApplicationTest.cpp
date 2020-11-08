@@ -279,7 +279,7 @@ TEST(ApplicationTest,
     execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerLam, NULL, "1999-12-20");
     execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, JReq, jobSeekerLam, lamResume, "1999-12-20");
 
-    char *csv = exportTo(pApplication, "csv", "1999-12-20");
+    char *csv = exportTo(pApplication, CSV, "1999-12-20");
     ASSERT_STREQ(csv,
                  "Employer,Job,Job Type,Applicants,Date\n"
                  "Alibaba,Senior Java Developer,JReq,Jacky,1999-12-20\n"
@@ -311,7 +311,7 @@ TEST(ApplicationTest,
     execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerLam, NULL, "1999-12-20");
     execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, JReq, jobSeekerLam, lamResume, "1999-12-20");
 
-    char *html = exportTo(pApplication, "html", "1999-12-20");
+    char *html = exportTo(pApplication, HTML, "1999-12-20");
     ASSERT_STREQ(html,
                  "<!DOCTYPE html><body><table><thead><tr><th>Employer</th><th>Job</th><th>Job Type</th><th>Applicants</th><th>Date</th></tr></thead><tbody>"
                  "<tr><td>Alibaba</td><td>Senior Java Developer</td><td>JReq</td><td>Jacky</td><td>1999-12-20</td></tr>"
