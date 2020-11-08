@@ -295,3 +295,35 @@ TEST(ApplicationTest,
                  "Alibaba,Senior Java Developer,JReq,Lam,1999-12-20\n"
     );
 }
+
+TEST(ApplicationTest,
+     should_generator_html_reports_of_all_jobseekers_on_a_given_date) {
+    char *employerAlibaba = "Alibaba";
+    char *jobSeekerJacky = "Jacky";
+    char *jackyResume = "Jacky";
+    char *jobSeekerHo = "Ho";
+    char *jobSeekerLam = "Lam";
+    char *lamResume = "Lam";
+    char *seniorJavaDevJob = "Senior Java Developer";
+    char *juniorJavaDevJob = "Java Developer";
+
+    Application *pApplication = newApplication();
+    execute(pApplication, "publish", employerAlibaba, juniorJavaDevJob, "ATS", NULL, NULL, NULL);
+    execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "JReq", NULL, NULL, NULL);
+
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerJacky, NULL, "1997-07-01");
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "JReq", jobSeekerJacky, jackyResume,
+            "1999-12-20");
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerHo, NULL, "1999-12-20");
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerLam, NULL, "1999-12-20");
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "JReq", jobSeekerLam, lamResume, "1999-12-20");
+
+    char *html = exportTo(pApplication, "html", "1999-12-20");
+    ASSERT_STREQ(html,
+                 "<!DOCTYPE html><body><table><thead><tr><th>Employer</th><th>Job</th><th>Job Type</th><th>Applicants</th><th>Date</th></tr></thead><tbody>"
+                 "<tr><td>Alibaba</td><td>Senior Java Developer</td><td>JReq</td><td>Jacky</td><td>1999-12-20</td></tr>"
+                 "<tr><td>Alibaba</td><td>Java Developer</td><td>ATS</td><td>Ho</td><td>1999-12-20</td></tr>"
+                 "<tr><td>Alibaba</td><td>Java Developer</td><td>ATS</td><td>Lam</td><td>1999-12-20</td></tr>"
+                 "<tr><td>Alibaba</td><td>Senior Java Developer</td><td>JReq</td><td>Lam</td><td>1999-12-20</td></tr>"
+                 "</tbody></table></body></html>");
+}

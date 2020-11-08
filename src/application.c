@@ -292,6 +292,35 @@ char *exportTo(Application *pApplication, char *type, char *date) {
         strcat(result, "Employer,Job,Job Type,Applicants,Date\n");
         strcat(result, res);
         return strdup(result);
+    } else {
+        LinkedMap *pMap = pApplication->applied;
+
+        char res[1024] = {0};
+        LinkedList *keys = keysOf(pMap);
+
+        for (int i = 0; i < len(keys); ++i) {
+            char *applicant = getItem(keys, i);
+            LinkedList *jobs = getItemBy(pMap, applicant);
+            for (int j = 0; j < len(jobs); ++j) {
+                LinkedList *job = getItem(jobs, j);
+                struct tm appliedAt = {0};
+                strptime(getItem(job, 2), "%Y-%m-%d", &appliedAt);
+
+                struct tm tmDate = {0};
+                strptime(date, "%Y-%m-%d", &tmDate);
+
+                if (mktime(&appliedAt) == mktime(&tmDate)) {
+                    char str[200];
+                    sprintf(str, "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", getItem(job, 3), getItem(job, 0), getItem(job, 1), applicant, getItem(job, 2));
+                    strcat(res, str);
+                }
+            }
+        }
+
+        char result[1024] = {0};
+        strcat(result, "<!DOCTYPE html><body><table><thead><tr><th>Employer</th><th>Job</th><th>Job Type</th><th>Applicants</th><th>Date</th></tr></thead><tbody>");
+        strcat(result, res);
+        strcat(result, "</tbody></table></body></html>");
+        return strdup(result);
     }
-    return NULL;
 }
