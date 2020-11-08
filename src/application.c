@@ -300,17 +300,13 @@ int getUnsuccessfulApplications(Application *pApplication, char *employerName, c
     return count;
 }
 
-int execute(Application *application, enum Command command, char *employerName, char *jobName, char *jobType,
+int execute(Application *application, enum Command command, char *employerName, char *jobName, enum JobType jobType,
             char *jobSeekerName, char *resumeApplicantName, char *applicationTime) {
     {
         if (command == PUBLISH) {
-            if (strcmp(jobType, "JReq") != 0 && strcmp(jobType, "ATS") != 0) {
-                return 400;
-            }
-
             LinkedList *job = newLinkedList();
             addLast(job, jobName);
-            addLast(job, jobType);
+            addLast(job, toStrJobType(jobType));
 
             LinkedList *alreadyPublished = getOrDefault(application->jobs, employerName, newLinkedList());
             addLast(alreadyPublished, job);
@@ -319,7 +315,7 @@ int execute(Application *application, enum Command command, char *employerName, 
         } else if (command == SAVE) {
             LinkedList *job = newLinkedList();
             addLast(job, jobName);
-            addLast(job, jobType);
+            addLast(job, toStrJobType(jobType));
 
             LinkedList *saved = getOrDefault(application->jobs, employerName, newLinkedList());
             addLast(saved, job);
@@ -327,7 +323,7 @@ int execute(Application *application, enum Command command, char *employerName, 
             putItem(application->jobs, employerName, saved);
         } else if (command == APPLY) {
 
-            if (strcmp(jobType, "JReq") == 0 && resumeApplicantName == NULL) {
+            if (jobType == JReq && resumeApplicantName == NULL) {
                 LinkedList *failedApplication = newLinkedList();
                 addLast(failedApplication, jobName);
                 addLast(failedApplication, jobType);
@@ -338,14 +334,14 @@ int execute(Application *application, enum Command command, char *employerName, 
                 return 401;
             }
 
-            if (strcmp(jobType, "JReq") == 0 && strcmp(jobSeekerName, resumeApplicantName) != 0) {
+            if (jobType == JReq && strcmp(jobSeekerName, resumeApplicantName) != 0) {
                 printf("请用自己的简历申请工作\r\n");
                 return 402;
             }
 
             LinkedList *job = newLinkedList();
             addLast(job, jobName);
-            addLast(job, jobType);
+            addLast(job, toStrJobType(jobType));
 
             addLast(job, applicationTime);
             addLast(job, employerName);

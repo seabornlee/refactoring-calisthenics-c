@@ -5,6 +5,7 @@
 #include "linked_list.h"
 #include "linked_map.h"
 #include "command.h"
+#include "job_type.h"
 
 typedef struct application {
     LinkedMap *jobs;
@@ -15,7 +16,7 @@ typedef struct application {
 Application *newApplication();
 
 int
-execute(Application *application, enum Command command, char *employerName, char *jobName, char *jobType, char *jobSeekerName,
+execute(Application *application, enum Command command, char *employerName, char *jobName, enum JobType jobType, char *jobSeekerName,
         char *resumeApplicantName,
         char *applicationTime);
 
