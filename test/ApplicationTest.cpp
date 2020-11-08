@@ -106,3 +106,17 @@ TEST(ApplicationTest, jobseekers_should_not_be_able_to_apply_for_an_JReq_job_som
     int result = execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "JReq", jobSeekerName, NULL, {0});
     ASSERT_EQ(401, result);
 }
+
+TEST(ApplicationTest,
+     jobseekers_should_not_be_able_to_apply_for_an_JReq_job_some_employer_published_with_someone_else_s_resume) {
+    char *employerAlibaba = "Alibaba";
+    char *jobSeekerName = "Jacky";
+    char *seniorJavaDevJob = "高级Java开发";
+    char *resumeApplicantName = "Jacky Chen";
+
+    Application *pApplication = newApplication();
+    execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "JReq", NULL, NULL, {0});
+    int result = execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "JReq", jobSeekerName,
+                         resumeApplicantName, {0});
+    ASSERT_EQ(402, result);
+}

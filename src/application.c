@@ -41,12 +41,13 @@ execute(Application *application, char *command, char *employerName, char *jobNa
 //            addLast(failedApplication, employerName);
 ////                    add(applicationTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 //            failedApplications.add(failedApplication);
+            printf("需要提供简历才能申请 JReq 类型的工作\r\n");
             return 401;
         }
-//
-//        if (jobType.equals("JReq") && !resumeApplicantName.equals(jobSeekerName)) {
-//            throw new InvalidResumeException();
-//        }
+        if (strcmp(jobType, "JReq") == 0 && strcmp(jobSeekerName, resumeApplicantName) != 0) {
+            printf("请用自己的简历申请工作\r\n");
+            return 402;
+        }
 
         LinkedList *job = newLinkedList();
         addLast(job, jobName);
