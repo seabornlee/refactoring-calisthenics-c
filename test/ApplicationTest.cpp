@@ -19,7 +19,9 @@ TEST(ApplicationTest, employers_should_be_able_to_publish_a_job) {
     char *employerName = "";
     char *jobName = "高级前端开发";
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerName, jobName, JReq, NULL, NULL, NULL);
+    Job *pJob = newJob(jobName);
+    pJob->jobType = JReq;
+    execute(pApplication, PUBLISH, newEmployer(employerName), pJob, NULL, NULL, NULL);
     LinkedList *jobs = getJobs(pApplication, employerName, PUBLISHED);
     LinkedList *job = static_cast<LinkedList *>(getItem(jobs, 0));
 
@@ -34,8 +36,12 @@ TEST(ApplicationTest, employers_should_only_be_able_to_see_jobs_published_by_the
     char *juniorJavaDevJob = "Java开发";
 
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, JReq, NULL, NULL, NULL);
-    execute(pApplication, PUBLISH, employerTencent, juniorJavaDevJob, JReq, NULL, NULL, NULL);
+    Job *pJob = newJob(seniorJavaDevJob);
+    pJob->jobType = JReq;
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), pJob, NULL, NULL, NULL);
+
+    Job *pJobJuniorJavaDev = newJob(juniorJavaDevJob);
+    execute(pApplication, PUBLISH, newEmployer(employerTencent), pJobJuniorJavaDev, NULL, NULL, NULL);
     LinkedList *jobs = getJobs(pApplication, employerAlibaba, PUBLISHED);
     ASSERT_EQ(1, len(jobs));
     LinkedList *job = (LinkedList *) getItem(jobs, 0);
@@ -46,7 +52,10 @@ TEST(ApplicationTest, employers_should_be_able_to_publish_ATS_jobs) {
     char *employerAlibaba = "Alibaba";
     char *seniorJavaDevJob = "高级Java开发";
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, ATS, NULL, NULL, NULL);
+
+    Job *pJob = newJob(seniorJavaDevJob);
+    pJob->jobType = ATS;
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), pJob, NULL, NULL, NULL);
     LinkedList *jobs = getJobs(pApplication, employerAlibaba, PUBLISHED);
     LinkedList *job = (LinkedList *) getItem(jobs, 0);
     ASSERT_STREQ("高级Java开发", (char *) getItem(job, 0));
@@ -58,8 +67,11 @@ TEST(ApplicationTest, jobseekers_should_be_able_to_save_jobs_published_by_employ
     char *jobSeekerName = "Jacky";
     char *jobName = "高级Java开发";
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, jobName, JReq, NULL, NULL, NULL);
-    execute(pApplication, SAVE, jobSeekerName, jobName, JReq, NULL, NULL, NULL);
+
+    Job *pJob = newJob(jobName);
+    pJob->jobType = JReq;
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), pJob, NULL, NULL, NULL);
+    execute(pApplication, SAVE, NULL, pJob, newJobSeeker(jobSeekerName), NULL, NULL);
 
     LinkedList *jobs = getJobs(pApplication, jobSeekerName, PUBLISHED);
     LinkedList *job = (LinkedList *) getItem(jobs, 0);
@@ -75,11 +87,19 @@ TEST(Application, jobseekers_should_be_able_to_apply_for_an_ATS_job_some_employe
     char *juniorJavaDevJob = "Java开发";
 
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, ATS, NULL, NULL, NULL);
-    execute(pApplication, PUBLISH, employerAlibaba, juniorJavaDevJob, ATS, NULL, NULL, NULL);
 
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerName, NULL, "2020-01-01");
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, ATS, jobSeekerName, NULL, "2020-01-01");
+    Job *pJobSeniorJavaDev = newJob(seniorJavaDevJob);
+    pJobSeniorJavaDev->jobType = ATS;
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), pJobSeniorJavaDev, NULL, NULL, NULL);
+
+    Job *pJobJuniorJavaDev = newJob(juniorJavaDevJob);
+    pJobJuniorJavaDev->jobType = ATS;
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), pJobJuniorJavaDev, NULL, NULL, NULL);
+
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), pJobJuniorJavaDev, newJobSeeker(jobSeekerName), NULL,
+            "2020-01-01");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), pJobSeniorJavaDev, newJobSeeker(jobSeekerName), NULL,
+            "2020-01-01");
     LinkedList *jobs = getJobs(pApplication, jobSeekerName, APPLIED);
 
     LinkedList *job1 = (LinkedList *) getItem(jobs, 0);
@@ -102,8 +122,13 @@ TEST(ApplicationTest, jobseekers_should_not_be_able_to_apply_for_an_JReq_job_som
     char *seniorJavaDevJob = "高级Java开发";
 
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, JReq, NULL, NULL, NULL);
-    int result = execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, JReq, jobSeekerName, NULL, now());
+
+    Job *pJob = newJob(seniorJavaDevJob);
+    pJob->jobType = JReq;
+
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), pJob, NULL, NULL, NULL);
+    int result = execute(pApplication, APPLY, newEmployer(employerAlibaba), pJob,
+                         newJobSeeker(jobSeekerName), NULL, now());
     ASSERT_EQ(401, result);
 }
 
@@ -115,9 +140,13 @@ TEST(ApplicationTest,
     char *resumeApplicantName = "Jacky Chen";
 
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, JReq, NULL, NULL, NULL);
-    int result = execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, JReq, jobSeekerName,
-                         resumeApplicantName, NULL);
+    Job *pJob = newJob(seniorJavaDevJob);
+    pJob->jobType = JReq;
+
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), pJob, NULL, NULL, NULL);
+    int result = execute(pApplication, APPLY, newEmployer(employerAlibaba), pJob,
+                         newJobSeeker(jobSeekerName),
+                         newResume(resumeApplicantName), NULL);
     ASSERT_EQ(402, result);
 }
 
@@ -128,11 +157,13 @@ TEST(ApplicationTest, employers_should_be_able_to_find_applicants_of_a_job) {
     char *seniorJavaDevJob = "高级Java开发";
 
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, ATS, NULL, NULL, NULL);
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, ATS, jobSeekerJacky, NULL, now());
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, ATS, jobSeekerLam, NULL, now());
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), NULL, NULL, NULL);
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), newJobSeeker(jobSeekerJacky),
+            NULL, now());
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), newJobSeeker(jobSeekerLam), NULL,
+            now());
 
-    LinkedList *applicants = findApplicants(pApplication, seniorJavaDevJob, employerAlibaba);
+    LinkedList *applicants = findApplicants(pApplication, newJob(seniorJavaDevJob));
 
     ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
     ASSERT_STREQ("Lam", (char *) getItem(applicants, 1));
@@ -144,11 +175,13 @@ TEST(ApplicationTest, employers_should_be_able_to_find_applicants_to_a_job_by_ap
     char *jobSeekerHo = "Ho";
     char *seniorJavaDevJob = "高级Java开发";
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, ATS, NULL, NULL, NULL);
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, ATS, jobSeekerJacky, NULL, "1997-07-01");
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, ATS, jobSeekerHo, NULL, "1999-12-20");
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), NULL, NULL, NULL);
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), newJobSeeker(jobSeekerJacky),
+            NULL, "1997-07-01");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), newJobSeeker(jobSeekerHo), NULL,
+            "1999-12-20");
 
-    LinkedList *applicants = findApplicantsFrom(pApplication, NULL, employerAlibaba, "1999-12-20");
+    LinkedList *applicants = findApplicantsFrom(pApplication, NULL, "1999-12-20");
 
     ASSERT_STREQ("Ho", (char *) getItem(applicants, 0));
 }
@@ -160,11 +193,13 @@ TEST(ApplicationTest,
     char *jobSeekerHo = "Ho";
     char *seniorJavaDevJob = "高级Java开发";
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, ATS, NULL, NULL, NULL);
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, ATS, jobSeekerJacky, NULL, "1997-07-01");
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, ATS, jobSeekerHo, NULL, "1999-12-20");
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), NULL, NULL, NULL);
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), newJobSeeker(jobSeekerJacky),
+            NULL, "1997-07-01");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), newJobSeeker(jobSeekerHo), NULL,
+            "1999-12-20");
 
-    LinkedList *applicants = findApplicantsIn(pApplication, NULL, employerAlibaba, NULL, "1999-12-20");
+    LinkedList *applicants = findApplicantsIn(pApplication, NULL, NULL, "1999-12-20");
 
     ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
 }
@@ -175,11 +210,13 @@ TEST(ApplicationTest, employers_should_be_able_to_find_applicants_to_a_job_by_pe
     char *jobSeekerHo = "Ho";
     char *seniorJavaDevJob = "高级Java开发";
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, ATS, NULL, NULL, NULL);
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, ATS, jobSeekerJacky, NULL, "1997-07-01");
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, ATS, jobSeekerHo, NULL, "1999-12-20");
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), NULL, NULL, NULL);
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), newJobSeeker(jobSeekerJacky),
+            NULL, "1997-07-01");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), newJobSeeker(jobSeekerHo), NULL,
+            "1999-12-20");
 
-    LinkedList *applicants = findApplicantsIn(pApplication, NULL, employerAlibaba, "1997-07-01", "1999-12-20");
+    LinkedList *applicants = findApplicantsIn(pApplication, NULL, "1997-07-01", "1999-12-20");
 
     ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
     ASSERT_STREQ("Ho", (char *) getItem(applicants, 1));
@@ -196,15 +233,18 @@ TEST(ApplicationTest,
     char *juniorJavaDevJob = "Java开发";
 
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, juniorJavaDevJob, ATS, NULL, NULL, NULL);
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, JReq, NULL, NULL, NULL);
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), NULL, NULL, NULL);
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, JReq), NULL, NULL, NULL);
 
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerJacky, NULL, "1997-07-01");
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, JReq, jobSeekerJacky, resumeApplicantName,
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerJacky),
+            NULL, "1997-07-01");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, JReq), newJobSeeker(jobSeekerJacky),
+            newResume(resumeApplicantName),
             "1999-12-20");
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerHo, NULL, "1999-12-20");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerHo), NULL,
+            "1999-12-20");
 
-    LinkedList *applicants = findApplicantsFrom(pApplication, seniorJavaDevJob, employerAlibaba, "1999-12-20");
+    LinkedList *applicants = findApplicantsFrom(pApplication, newJob(seniorJavaDevJob), "1999-12-20");
 
     ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
 }
@@ -218,14 +258,17 @@ TEST(ApplicationTest,
     char *juniorJavaDevJob = "Java开发";
 
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, ATS, NULL, NULL, NULL);
-    execute(pApplication, PUBLISH, employerAlibaba, juniorJavaDevJob, ATS, NULL, NULL, NULL);
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), NULL, NULL, NULL);
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), NULL, NULL, NULL);
 
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerJacky, NULL, "1997-07-01");
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, ATS, jobSeekerJacky, NULL, "1997-07-01");
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerHo, NULL, "1999-12-20");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerJacky),
+            NULL, "1997-07-01");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), newJobSeeker(jobSeekerJacky),
+            NULL, "1997-07-01");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerHo), NULL,
+            "1999-12-20");
 
-    LinkedList *applicants = findApplicantsIn(pApplication, seniorJavaDevJob, employerAlibaba, NULL, "1999-01-01");
+    LinkedList *applicants = findApplicantsIn(pApplication, newJob(seniorJavaDevJob), NULL, "1999-01-01");
 
     ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
 }
@@ -242,15 +285,19 @@ TEST(ApplicationTest,
     char *juniorJavaDevJob = "Java开发";
 
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, ATS, NULL, NULL, NULL);
-    execute(pApplication, PUBLISH, employerAlibaba, juniorJavaDevJob, ATS, NULL, NULL, NULL);
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), NULL, NULL, NULL);
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), NULL, NULL, NULL);
 
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, ATS, jobSeekerWong, NULL, "1997-07-01");
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerJacky, NULL, "1996-12-31");
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerHo, NULL, "1998-01-01");
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerLam, NULL, "1999-12-20");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), newJobSeeker(jobSeekerWong), NULL,
+            "1997-07-01");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerJacky),
+            NULL, "1996-12-31");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerHo), NULL,
+            "1998-01-01");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerLam), NULL,
+            "1999-12-20");
 
-    LinkedList *applicants = findApplicantsIn(pApplication, juniorJavaDevJob, employerAlibaba, "1997-01-01",
+    LinkedList *applicants = findApplicantsIn(pApplication, newJob(juniorJavaDevJob), "1997-01-01",
                                               "1999-01-01");
 
     ASSERT_STREQ("Ho", (char *) getItem(applicants, 0));
@@ -269,15 +316,20 @@ TEST(ApplicationTest,
     char *juniorJavaDevJob = "Java Developer";
 
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, juniorJavaDevJob, ATS, NULL, NULL, NULL);
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, JReq, NULL, NULL, NULL);
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), NULL, NULL, NULL);
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, JReq), NULL, NULL, NULL);
 
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerJacky, NULL, "1997-07-01");
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, JReq, jobSeekerJacky, jackyResume,
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerJacky),
+            NULL, "1997-07-01");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, JReq), newJobSeeker(jobSeekerJacky),
+            newResume(jackyResume),
             "1999-12-20");
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerHo, NULL, "1999-12-20");
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerLam, NULL, "1999-12-20");
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, JReq, jobSeekerLam, lamResume, "1999-12-20");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerHo), NULL,
+            "1999-12-20");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerLam), NULL,
+            "1999-12-20");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, JReq), newJobSeeker(jobSeekerLam),
+            newResume(lamResume), "1999-12-20");
 
     char *csv = exportTo(pApplication, CSV, "1999-12-20");
     ASSERT_STREQ(csv,
@@ -301,15 +353,20 @@ TEST(ApplicationTest,
     char *juniorJavaDevJob = "Java Developer";
 
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, juniorJavaDevJob, ATS, NULL, NULL, NULL);
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, JReq, NULL, NULL, NULL);
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), NULL, NULL, NULL);
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, JReq), NULL, NULL, NULL);
 
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerJacky, NULL, "1997-07-01");
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, JReq, jobSeekerJacky, jackyResume,
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerJacky),
+            NULL, "1997-07-01");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, JReq), newJobSeeker(jobSeekerJacky),
+            newResume(jackyResume),
             "1999-12-20");
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerHo, NULL, "1999-12-20");
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerLam, NULL, "1999-12-20");
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, JReq, jobSeekerLam, lamResume, "1999-12-20");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerHo), NULL,
+            "1999-12-20");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerLam), NULL,
+            "1999-12-20");
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, JReq), newJobSeeker(jobSeekerLam),
+            newResume(lamResume), "1999-12-20");
 
     char *html = exportTo(pApplication, HTML, "1999-12-20");
     ASSERT_STREQ(html,
@@ -331,16 +388,20 @@ TEST(ApplicationTest, should_be_able_to_see_successful_application_of_a_job_for_
     char *juniorJavaDevJob = "Java开发";
 
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, ATS, NULL, NULL, NULL);
-    execute(pApplication, PUBLISH, employerAlibaba, juniorJavaDevJob, ATS, NULL, NULL, NULL);
-    execute(pApplication, PUBLISH, employerTencent, juniorJavaDevJob, ATS, NULL, NULL, NULL);
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, ATS, jobSeekerJacky, NULL, now());
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, ATS, jobSeekerLam, NULL, now());
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerHo, NULL, now());
-    execute(pApplication, APPLY, employerTencent, juniorJavaDevJob, ATS, jobSeekerHo, NULL, now());
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), NULL, NULL, NULL);
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), NULL, NULL, NULL);
+    execute(pApplication, PUBLISH, newEmployer(employerTencent), newJobWithType(juniorJavaDevJob, ATS), NULL, NULL, NULL);
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), newJobSeeker(jobSeekerJacky),
+            NULL, now());
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), newJobSeeker(jobSeekerLam), NULL,
+            now());
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerHo), NULL,
+            now());
+    execute(pApplication, APPLY, newEmployer(employerTencent), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerHo), NULL,
+            now());
 
-    ASSERT_EQ(2, getSuccessfulApplications(pApplication, employerAlibaba, seniorJavaDevJob));
-    ASSERT_EQ(1, getSuccessfulApplications(pApplication, employerAlibaba, juniorJavaDevJob));
+    ASSERT_EQ(2, getSuccessfulApplications(pApplication, newEmployer(employerAlibaba), newJob(seniorJavaDevJob)));
+    ASSERT_EQ(1, getSuccessfulApplications(pApplication, newEmployer(employerAlibaba), newJob(juniorJavaDevJob)));
 }
 
 TEST(ApplicationTest, should_be_able_to_see_unsuccessful_applications_of_a_job_for_an_employer) {
@@ -351,10 +412,12 @@ TEST(ApplicationTest, should_be_able_to_see_unsuccessful_applications_of_a_job_f
     char *juniorJavaDevJob = "Java开发";
 
     Application *pApplication = newApplication();
-    execute(pApplication, PUBLISH, employerAlibaba, seniorJavaDevJob, JReq, NULL, NULL, NULL);
-    execute(pApplication, PUBLISH, employerAlibaba, juniorJavaDevJob, ATS, NULL, NULL, NULL);
-    execute(pApplication, APPLY, employerAlibaba, seniorJavaDevJob, JReq, jobSeekerJacky, NULL, now());
-    execute(pApplication, APPLY, employerAlibaba, juniorJavaDevJob, ATS, jobSeekerLam, NULL, now());
-    ASSERT_EQ(1, getUnsuccessfulApplications(pApplication, employerAlibaba, seniorJavaDevJob));
-    ASSERT_EQ(0, getUnsuccessfulApplications(pApplication, employerAlibaba, juniorJavaDevJob));
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, JReq), NULL, NULL, NULL);
+    execute(pApplication, PUBLISH, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), NULL, NULL, NULL);
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, JReq), newJobSeeker(jobSeekerJacky),
+            NULL, now());
+    execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerLam), NULL,
+            now());
+    ASSERT_EQ(1, getUnsuccessfulApplications(pApplication, newEmployer(employerAlibaba), newJob(seniorJavaDevJob)));
+    ASSERT_EQ(0, getUnsuccessfulApplications(pApplication, newEmployer(employerAlibaba), newJob(juniorJavaDevJob)));
 }
