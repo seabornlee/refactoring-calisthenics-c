@@ -184,3 +184,24 @@ TEST(ApplicationTest, employers_should_be_able_to_find_applicants_to_a_job_by_pe
 
     ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
 }
+
+TEST(ApplicationTest, employers_should_be_able_to_find_applicants_to_a_job_by_period) {
+    char *employerAlibaba = "Alibaba";
+    char *jobSeekerJacky = "Jacky";
+    char *jobSeekerHo = "Ho";
+    char *seniorJavaDevJob = "高级Java开发";
+    Application *pApplication = newApplication();
+    execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "ATS", NULL, NULL, NULL);
+
+    struct tm from1997 = {0};
+    strptime("1997-07-01", "%Y-%m-%d", &from1997);
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerJacky, NULL, "1997-07-01");
+
+    struct tm from1999 = {0};
+    strptime("1999-12-20", "%Y-%m-%d", &from1999);
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerHo, NULL, "1999-12-20");
+    LinkedList *applicants = findApplicantsIn(pApplication, NULL, employerAlibaba, "1997-07-01", "1999-12-20");
+
+    ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
+    ASSERT_STREQ("Ho", (char *) getItem(applicants, 1));
+}
