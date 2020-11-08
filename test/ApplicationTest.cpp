@@ -28,6 +28,17 @@ TEST(ApplicationTest, employers_should_only_be_able_to_see_jobs_published_by_the
     execute(pApplication, "publish", employerTencent, juniorJavaDevJob, "JReq", NULL, NULL, 0L);
     LinkedList *jobs = getJobs(pApplication, employerAlibaba, "published");
     ASSERT_EQ(1, len(jobs));
-    LinkedList *pList = (LinkedList *) getItem(jobs, 0);
-    ASSERT_STREQ("高级Java开发", (char *) getItem(pList, 0));
+    LinkedList *job = (LinkedList *) getItem(jobs, 0);
+    ASSERT_STREQ("高级Java开发", (char *) getItem(job, 0));
+}
+
+TEST(ApplicationTest, employers_should_be_able_to_publish_ATS_jobs) {
+    char *employerAlibaba = "Alibaba";
+    char *seniorJavaDevJob = "高级Java开发";
+    Application *pApplication = newApplication();
+    execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "ATS", NULL, NULL, 0L);
+    LinkedList *jobs = getJobs(pApplication, employerAlibaba, "published");
+    LinkedList *job = (LinkedList *) getItem(jobs, 0);
+    ASSERT_STREQ("高级Java开发", (char *) getItem(job, 0));
+    ASSERT_STREQ("ATS", (char *) getItem(job, 1));
 }
