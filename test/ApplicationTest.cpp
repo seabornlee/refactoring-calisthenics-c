@@ -236,3 +236,29 @@ TEST(ApplicationTest,
 
     ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
 }
+
+TEST(ApplicationTest,
+     employers_should_be_able_to_find_applicants_to_a_job_by_job_name_and_period) {
+
+    char *employerAlibaba = "Alibaba";
+    char *jobSeekerWong = "Wong";
+    char *jobSeekerJacky = "Jacky";
+    char *jobSeekerHo = "Ho";
+    char *jobSeekerLam = "Lam";
+    char *seniorJavaDevJob = "高级Java开发";
+    char *juniorJavaDevJob = "Java开发";
+
+    Application *pApplication = newApplication();
+    execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "ATS", NULL, NULL, NULL);
+    execute(pApplication, "publish", employerAlibaba, juniorJavaDevJob, "ATS", NULL, NULL, NULL);
+
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerWong, NULL, "1997-07-01");
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerJacky, NULL, "1996-12-31");
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerHo, NULL, "1998-01-01");
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerLam, NULL, "1999-12-20");
+
+    LinkedList *applicants = findApplicantsIn(pApplication, juniorJavaDevJob, employerAlibaba, "1997-01-01", "1999-01-01");
+
+    ASSERT_STREQ("Ho", (char *) getItem(applicants, 0));
+    ASSERT_EQ(1, len(applicants));
+}

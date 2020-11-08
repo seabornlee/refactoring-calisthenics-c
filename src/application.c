@@ -183,7 +183,7 @@ findApplicantsIn(Application *pApplication, char *jobName, char *employerName, c
             }
         }
         return pList;
-    } else if (to != NULL) {
+    } else if (from == NULL && to != NULL) {
         LinkedList *pList = newLinkedList();
 
         LinkedMap *pMap = pApplication->applied;
@@ -207,7 +207,7 @@ findApplicantsIn(Application *pApplication, char *jobName, char *employerName, c
             }
         }
         return pList;
-    } else {
+    } else if (from != NULL && to == NULL) {
         LinkedList *pList = newLinkedList();
 
         LinkedMap *pMap = pApplication->applied;
@@ -231,6 +231,32 @@ findApplicantsIn(Application *pApplication, char *jobName, char *employerName, c
             }
         }
         return pList;
+    } else {
+        LinkedList *pList = newLinkedList();
+
+        LinkedMap *pMap = pApplication->applied;
+
+        LinkedList *keys = keysOf(pMap);
+        for (int i = 0; i < len(keys); ++i) {
+            char *applicant = getItem(keys, i);
+            LinkedList *jobs = getItemBy(pMap, applicant);
+            for (int j = 0; j < len(jobs); ++j) {
+                LinkedList *job = getItem(jobs, j);
+                struct tm appliedAt = {0};
+                strptime(getItem(job, 2), "%Y-%m-%d", &appliedAt);
+
+                struct tm tmFrom = {0};
+                strptime(from, "%Y-%m-%d", &tmFrom);
+
+                struct tm tmTo = {0};
+                strptime(to, "%Y-%m-%d", &tmTo);
+
+                char *_jobName = getItem(job, 0);
+                if (strcmp(jobName, _jobName) == 0 && mktime(&appliedAt) >= mktime(&tmFrom) && mktime(&appliedAt) <= mktime(&tmTo)) {
+                    addLast(pList, applicant);
+                }
+            }
+        }
+        return pList;
     }
-    return NULL;
 }
