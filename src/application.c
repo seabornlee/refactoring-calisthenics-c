@@ -134,6 +134,29 @@ findApplicantsIn(Application *pApplication, char *jobName, char *employerName, c
         }
         return pList;
 
+    } else if (jobName == NULL && from == NULL) {
+        LinkedList *pList = newLinkedList();
+
+        LinkedMap *pMap = pApplication->applied;
+
+        LinkedList *keys = keysOf(pMap);
+        for (int i = 0; i < len(keys); ++i) {
+            char *applicant = getItem(keys, i);
+            LinkedList *jobs = getItemBy(pMap, applicant);
+            for (int j = 0; j < len(jobs); ++j) {
+                LinkedList *job = getItem(jobs, 0);
+                struct tm appliedAt = {0};
+                strptime(getItem(job, 2), "%Y-%m-%d", &appliedAt);
+
+                struct tm tmTo = {0};
+                strptime(to, "%Y-%m-%d", &tmTo);
+
+                if (mktime(&appliedAt) < mktime(&tmTo)) {
+                    addLast(pList, applicant);
+                }
+            }
+        }
+        return pList;
     }
     return NULL;
 }
