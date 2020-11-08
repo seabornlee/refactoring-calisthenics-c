@@ -199,7 +199,7 @@ TEST(ApplicationTest,
     execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), newJobSeeker(jobSeekerHo), NULL,
             "1999-12-20");
 
-    LinkedList *applicants = findApplicantsIn(pApplication, NULL, NULL, "1999-12-20");
+    LinkedList *applicants = findApplicantsIn(pApplication->appliedJobs, NULL, NULL, "1999-12-20");
 
     ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
 }
@@ -216,7 +216,7 @@ TEST(ApplicationTest, employers_should_be_able_to_find_applicants_to_a_job_by_pe
     execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(seniorJavaDevJob, ATS), newJobSeeker(jobSeekerHo), NULL,
             "1999-12-20");
 
-    LinkedList *applicants = findApplicantsIn(pApplication, NULL, "1997-07-01", "1999-12-20");
+    LinkedList *applicants = findApplicantsIn(pApplication->appliedJobs, NULL, "1997-07-01", "1999-12-20");
 
     ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
     ASSERT_STREQ("Ho", (char *) getItem(applicants, 1));
@@ -268,7 +268,7 @@ TEST(ApplicationTest,
     execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerHo), NULL,
             "1999-12-20");
 
-    LinkedList *applicants = findApplicantsIn(pApplication, newJob(seniorJavaDevJob), NULL, "1999-01-01");
+    LinkedList *applicants = findApplicantsIn(pApplication->appliedJobs, newJob(seniorJavaDevJob), NULL, "1999-01-01");
 
     ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
 }
@@ -297,7 +297,7 @@ TEST(ApplicationTest,
     execute(pApplication, APPLY, newEmployer(employerAlibaba), newJobWithType(juniorJavaDevJob, ATS), newJobSeeker(jobSeekerLam), NULL,
             "1999-12-20");
 
-    LinkedList *applicants = findApplicantsIn(pApplication, newJob(juniorJavaDevJob), "1997-01-01",
+    LinkedList *applicants = findApplicantsIn(pApplication->appliedJobs, newJob(juniorJavaDevJob), "1997-01-01",
                                               "1999-01-01");
 
     ASSERT_STREQ("Ho", (char *) getItem(applicants, 0));

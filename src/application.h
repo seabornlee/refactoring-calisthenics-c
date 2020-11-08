@@ -13,10 +13,11 @@
 #include "job.h"
 #include "resume.h"
 #include "jobs.h"
+#include "applied_jobs.h"
 
 typedef struct application {
     Jobs *jobs;
-    LinkedMap *applied;
+    AppliedJobs *appliedJobs;
     LinkedList *failedApplications;
 } Application;
 
@@ -30,7 +31,6 @@ execute(Application *application, enum Command command, Employer *employer, Job 
 LinkedList *getJobs(Application *pApplication, char *name, enum JobStatus jobStatus);
 LinkedList *findApplicants(Application *pApplication, Job *job);
 LinkedList *findApplicantsFrom(Application *pApplication, Job *job, char *from);
-LinkedList *findApplicantsIn(Application *pApplication, Job *job, char *from, char *to);
 char *exportTo(Application *pApplication, enum FileType type, char *date);
 int getSuccessfulApplications(Application *pApplication, Employer *employer, Job *job);
 int getUnsuccessfulApplications(Application *pApplication, Employer *employer, Job *job);
