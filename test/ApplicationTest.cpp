@@ -95,3 +95,14 @@ TEST(Application, jobseekers_should_be_able_to_apply_for_an_ATS_job_some_employe
     ASSERT_STREQ("2020-01-01", (char *) getItem(job2, 2));
     ASSERT_STREQ("Alibaba", (char *) getItem(job2, 3));
 }
+
+TEST(ApplicationTest, jobseekers_should_not_be_able_to_apply_for_an_JReq_job_some_employer_published_without_a_resume) {
+    char *employerAlibaba = "Alibaba";
+    char *jobSeekerName = "Jacky";
+    char *seniorJavaDevJob = "高级Java开发";
+
+    Application *pApplication = newApplication();
+    execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "JReq", NULL, NULL, {0});
+    int result = execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "JReq", jobSeekerName, NULL, {0});
+    ASSERT_EQ(401, result);
+}

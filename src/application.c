@@ -32,8 +32,8 @@ execute(Application *application, char *command, char *employerName, char *jobNa
 
         putItem(application->jobs, employerName, saved);
     } else if (strcmp(command, "apply") == 0) {
-//
-//        if (strcmp(jobType, "JReq") == 0 && resumeApplicantName == NULL) {
+
+        if (strcmp(jobType, "JReq") == 0 && resumeApplicantName == NULL) {
 //            LinkedList *failedApplication = newLinkedList();
 //            addLast(failedApplication, jobName);
 //            addLast(failedApplication, jobType);
@@ -41,8 +41,8 @@ execute(Application *application, char *command, char *employerName, char *jobNa
 //            addLast(failedApplication, employerName);
 ////                    add(applicationTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 //            failedApplications.add(failedApplication);
-//            throw new RequiresResumeForJReqJobException();
-//        }
+            return 401;
+        }
 //
 //        if (jobType.equals("JReq") && !resumeApplicantName.equals(jobSeekerName)) {
 //            throw new InvalidResumeException();
