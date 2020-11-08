@@ -21,6 +21,15 @@ execute(Application *application, char *command, char *employerName, char *jobNa
         addLast(alreadyPublished, job);
 
         putItem(application->jobs, employerName, alreadyPublished);
+    } else if (strcmp(command, "save") == 0) {
+        LinkedList *job = newLinkedList();
+        addLast(job, jobName);
+        addLast(job, jobType);
+
+        LinkedList *saved = getOrDefault(application->jobs, employerName, newLinkedList());
+        addLast(saved, job);
+
+        putItem(application->jobs, employerName, saved);
     }
 
     return 0;

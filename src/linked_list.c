@@ -39,7 +39,7 @@ int len(LinkedList *linkedList) {
 
 void *getItem(LinkedList *linkedList, int index) {
     if (index >= len(linkedList)) {
-        printf("下标越界");
+        printf("下标越界: %d\r\n", index);
         return NULL;
     }
 

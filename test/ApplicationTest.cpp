@@ -50,3 +50,18 @@ TEST(ApplicationTest, employers_should_not_be_able_to_publish_jobs_that_are_neit
     int result = execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "RJeq", NULL, NULL, 0L);
     ASSERT_EQ(result, 400);
 }
+
+TEST(ApplicationTest, jobseekers_should_be_able_to_save_jobs_published_by_employers_for_later_review) {
+    char *employerAlibaba = "Alibaba";
+    char *jobSeekerName = "Jacky";
+    char *jobName = "高级Java开发";
+    Application *pApplication = newApplication();
+    execute(pApplication, "publish", employerAlibaba, jobName, "JReq", NULL, NULL, 0L);
+    execute(pApplication, "save", jobSeekerName, jobName, "JReq", NULL, NULL, 0L);
+
+    LinkedList *jobs = getJobs(pApplication, jobSeekerName, "published");
+    LinkedList *job = (LinkedList *) getItem(jobs, 0);
+
+    ASSERT_STREQ("高级Java开发", (char *) getItem(job, 0));
+    ASSERT_STREQ("JReq", (char *) getItem(job, 1));
+}
