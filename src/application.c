@@ -4,11 +4,15 @@
 #include "linked_list.h"
 #include "linked_map.h"
 
-void
+int
 execute(Application *application, char *command, char *employerName, char *jobName, char *jobType, char *jobSeekerName,
         char *resumeApplicantName,
         long applicationTime) {
     if (strcmp(command, "publish") == 0) {
+        if (strcmp(jobType, "JReq") != 0 && strcmp(jobType, "ATS") != 0) {
+            return 400;
+        }
+
         LinkedList *job = newLinkedList();
         addLast(job, jobName);
         addLast(job, jobType);
@@ -18,6 +22,8 @@ execute(Application *application, char *command, char *employerName, char *jobNa
 
         putItem(application->jobs, employerName, alreadyPublished);
     }
+
+    return 0;
 }
 
 Application *newApplication() {

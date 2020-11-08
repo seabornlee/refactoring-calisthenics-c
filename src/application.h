@@ -11,7 +11,7 @@ typedef struct application {
 
 Application *newApplication();
 
-void
+int
 execute(Application *application, char *command, char *employerName, char *jobName, char *jobType, char *jobSeekerName,
         char *resumeApplicantName,
         long applicationTime);
