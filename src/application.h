@@ -12,9 +12,10 @@
 #include "job_seeker.h"
 #include "job.h"
 #include "resume.h"
+#include "jobs.h"
 
 typedef struct application {
-    LinkedMap *jobs;
+    Jobs *jobs;
     LinkedMap *applied;
     LinkedList *failedApplications;
 } Application;

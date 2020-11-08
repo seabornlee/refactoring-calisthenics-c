@@ -18,10 +18,6 @@ void filterApplicantsAndJobs(const Application *pApplication, const char *date, 
 
 int getCountByEmployerAndJobName(const Employer *employer, const Job *pJob, const LinkedList *list);
 
-void publish(const Application *application, const Employer *employer, const Job *pJob);
-
-void save(const Application *application, const Job *pJob, const JobSeeker *jobSeeker);
-
 int apply(const Application *application, const Employer *employer, const Job *pJob, const JobSeeker *jobSeeker,
           const Resume *resume, const char *applicationTime);
 
@@ -31,9 +27,10 @@ Application *newApplication() {
         return pApplication;
     }
 
-    pApplication->jobs = newLinkedMap();
+    newLinkedMap();
     pApplication->applied = newLinkedMap();
     pApplication->failedApplications = newLinkedList();
+    pApplication->jobs = newJobs();
     return pApplication;
 }
 
@@ -41,7 +38,7 @@ LinkedList *getJobs(Application *pApplication, char *name, enum JobStatus jobSta
     if (jobStatus == APPLIED) {
         return getItemBy(pApplication->applied, name);
     }
-    return getItemBy(pApplication->jobs, name);
+    return getPublishedJobs(pApplication->jobs, newEmployer(name));
 }
 
 LinkedList *findApplicants(Application *pApplication, Job *job) {
@@ -206,12 +203,12 @@ int
 execute(Application *application, enum Command command, Employer *employer, Job *pJob,
         JobSeeker *jobSeeker, Resume *resume, char *applicationTime) {
     if (command == PUBLISH) {
-        publish(application, employer, pJob);
+        publishJob(application->jobs, employer, pJob);
         return 0;
     }
 
     if (command == SAVE) {
-        save(application, pJob, jobSeeker);
+        saveJob(application->jobs, pJob, jobSeeker);
         return 0;
     }
 
@@ -254,24 +251,3 @@ int apply(const Application *application, const Employer *employer, const Job *p
     return 0;
 }
 
-void save(const Application *application, const Job *pJob, const JobSeeker *jobSeeker) {
-    LinkedList *job = newLinkedList();
-    addLast(job, pJob->name);
-    addLast(job, toStrJobType(pJob->jobType));
-
-    LinkedList *saved = getOrDefault(application->jobs, jobSeeker->name, newLinkedList());
-    addLast(saved, job);
-
-    putItem(application->jobs, jobSeeker->name, saved);
-}
-
-void publish(const Application *application, const Employer *employer, const Job *pJob) {
-    LinkedList *job = newLinkedList();
-    addLast(job, pJob->name);
-    addLast(job, toStrJobType(pJob->jobType));
-
-    LinkedList *alreadyPublished = getOrDefault(application->jobs, employer->name, newLinkedList());
-    addLast(alreadyPublished, job);
-
-    putItem(application->jobs, employer->name, alreadyPublished);
-}
