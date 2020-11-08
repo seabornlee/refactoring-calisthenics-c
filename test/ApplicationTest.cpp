@@ -349,3 +349,19 @@ TEST(ApplicationTest, should_be_able_to_see_successful_application_of_a_job_for_
     ASSERT_EQ(2, getSuccessfulApplications(pApplication, employerAlibaba, seniorJavaDevJob));
     ASSERT_EQ(1, getSuccessfulApplications(pApplication, employerAlibaba, juniorJavaDevJob));
 }
+
+TEST(ApplicationTest, should_be_able_to_see_unsuccessful_applications_of_a_job_for_an_employer) {
+    char *employerAlibaba = "Alibaba";
+    char *jobSeekerJacky = "Jacky";
+    char *jobSeekerLam = "Lam";
+    char *seniorJavaDevJob = "高级Java开发";
+    char *juniorJavaDevJob = "Java开发";
+
+    Application *pApplication = newApplication();
+    execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "JReq", NULL, NULL, NULL);
+    execute(pApplication, "publish", employerAlibaba, juniorJavaDevJob, "ATS", NULL, NULL, NULL);
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "JReq", jobSeekerJacky, NULL, now());
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerLam, NULL, now());
+    ASSERT_EQ(1, getUnsuccessfulApplications(pApplication, employerAlibaba, seniorJavaDevJob));
+    ASSERT_EQ(0, getUnsuccessfulApplications(pApplication, employerAlibaba, juniorJavaDevJob));
+}

@@ -34,16 +34,16 @@ execute(Application *application, char *command, char *employerName, char *jobNa
     } else if (strcmp(command, "apply") == 0) {
 
         if (strcmp(jobType, "JReq") == 0 && resumeApplicantName == NULL) {
-//            LinkedList *failedApplication = newLinkedList();
-//            addLast(failedApplication, jobName);
-//            addLast(failedApplication, jobType);
-//            addLast(failedApplication, "");
-//            addLast(failedApplication, employerName);
-////                    add(applicationTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-//            failedApplications.add(failedApplication);
+            LinkedList *failedApplication = newLinkedList();
+            addLast(failedApplication, jobName);
+            addLast(failedApplication, jobType);
+            addLast(failedApplication, applicationTime);
+            addLast(failedApplication, employerName);
+            addLast(application->failedApplications, failedApplication);
             printf("需要提供简历才能申请 JReq 类型的工作\r\n");
             return 401;
         }
+
         if (strcmp(jobType, "JReq") == 0 && strcmp(jobSeekerName, resumeApplicantName) != 0) {
             printf("请用自己的简历申请工作\r\n");
             return 402;
@@ -72,6 +72,7 @@ Application *newApplication() {
 
     pApplication->jobs = newLinkedMap();
     pApplication->applied = newLinkedMap();
+    pApplication->failedApplications = newLinkedList();
     return pApplication;
 }
 
@@ -340,6 +341,19 @@ int getSuccessfulApplications(Application *pApplication, char *employerName, cha
             if (strcmp(jobName, _jobName) == 0 && strcmp(employerName, getItem(job, 3)) == 0) {
                 count++;
             }
+        }
+    }
+    return count;
+}
+
+int getUnsuccessfulApplications(Application *pApplication, char *employerName, char *jobName) {
+    int count = 0;
+    for (int i = 0; i < len(pApplication->failedApplications); ++i) {
+        LinkedList *job = getItem(pApplication->failedApplications, i);
+
+        char *_jobName = getItem(job, 0);
+        if (strcmp(jobName, _jobName) == 0 && strcmp(employerName, getItem(job, 3)) == 0) {
+            count++;
         }
     }
     return count;

@@ -8,6 +8,7 @@
 typedef struct application {
     LinkedMap *jobs;
     LinkedMap *applied;
+    LinkedList *failedApplications;
 } Application;
 
 Application *newApplication();
@@ -23,4 +24,5 @@ LinkedList *findApplicantsFrom(Application *pApplication, char *jobName, char *e
 LinkedList *findApplicantsIn(Application *pApplication, char *jobName, char *employerName, char *from, char *to);
 char *exportTo(Application *pApplication, char *type, char *date);
 int getSuccessfulApplications(Application *pApplication, char *employerName, char *jobName);
+int getUnsuccessfulApplications(Application *pApplication, char *employerName, char *jobName);
 #endif //REFACTOR_CALISTHENICS_C_APPLICATION_H
