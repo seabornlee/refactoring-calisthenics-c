@@ -8,7 +8,7 @@
 int
 execute(Application *application, char *command, char *employerName, char *jobName, char *jobType, char *jobSeekerName,
         char *resumeApplicantName,
-        struct tm applicationTime) {
+        struct tm *applicationTime) {
     if (strcmp(command, "publish") == 0) {
         if (strcmp(jobType, "JReq") != 0 && strcmp(jobType, "ATS") != 0) {
             return 400;
@@ -83,4 +83,36 @@ LinkedList *getJobs(Application *pApplication, char *employerName, const char *t
         return getItemBy(pApplication->applied, employerName);
     }
     return getItemBy(pApplication->jobs, employerName);
+}
+
+LinkedList *findApplicants(Application *pApplication, char *jobName, char *employerName) {
+    return findApplicantsFrom(pApplication, jobName, employerName, NULL);
+}
+
+LinkedList *findApplicantsFrom(Application *pApplication, char *jobName, char *employerName, struct tm *from) {
+    return findApplicantsIn(pApplication, jobName, employerName, from, NULL);
+}
+
+LinkedList *
+findApplicantsIn(Application *pApplication, char *jobName, char *employerName, struct tm *from, struct tm *to) {
+    if (from == NULL && to == NULL) {
+        LinkedList *pList = newLinkedList();
+
+        LinkedMap *pMap = pApplication->applied;
+
+        LinkedList *keys = keysOf(pMap);
+        for (int i = 0; i < len(keys); ++i) {
+            char *applicant = getItem(keys, i);
+            LinkedList *jobs = getItemBy(pMap, applicant);
+            for (int j = 0; j < len(jobs); ++j) {
+                LinkedList *job = getItem(jobs, 0);
+                char *_jobName = getItem(job, 0);
+                if (strcmp(_jobName, jobName) == 0) {
+                    addLast(pList, applicant);
+                }
+            }
+        }
+        return pList;
+    }
+    return NULL;
 }

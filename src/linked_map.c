@@ -49,3 +49,17 @@ void *getOrDefault(LinkedMap *map, char *key, void *defaultValue) {
     }
     return defaultValue;
 }
+
+LinkedList *keysOf(LinkedMap *map) {
+    LinkedList *keys = newLinkedList();
+
+    LinkedMap *p = map;
+    while (p != NULL) {
+        if (p->key != NULL) {
+            addLast(keys, p->key);
+        }
+        p = p->next;
+    }
+
+    return keys;
+}

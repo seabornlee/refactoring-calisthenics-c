@@ -54,3 +54,13 @@ TEST(LinkedListTest, should_hold_linked_list_as_value) {
     ASSERT_STREQ("apple", (char *) getItem(pList, 0));
     ASSERT_STREQ("apple", (char *) getItem(v1, 0));
 }
+
+TEST(LinkedListTest, should_get_keys) {
+    LinkedMap *map = newLinkedMap();
+    putItem(map, "hello", (void *) "world");
+    putItem(map, "good", (void *) "bye");
+    LinkedList *keys = keysOf(map);
+
+    ASSERT_STREQ("hello", (char *) getItem(keys, 0));
+    ASSERT_STREQ("good", (char *) getItem(keys, 1));
+}
