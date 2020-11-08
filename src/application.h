@@ -7,6 +7,7 @@
 
 typedef struct application {
     LinkedMap *jobs;
+    LinkedMap *applied;
 } Application;
 
 Application *newApplication();
@@ -14,7 +15,7 @@ Application *newApplication();
 int
 execute(Application *application, char *command, char *employerName, char *jobName, char *jobType, char *jobSeekerName,
         char *resumeApplicantName,
-        long applicationTime);
+        struct tm applicationTime);
 
 LinkedList *getJobs(Application *pApplication, char *employerName, const char *type);
 

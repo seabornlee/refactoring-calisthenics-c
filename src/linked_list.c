@@ -17,6 +17,7 @@ LinkedList *newLinkedList() {
 
 void addLast(LinkedList *linkedList, void *element) {
     LinkedList *node = newLinkedList();
+
     node->element = element;
 
     LinkedList *lastNode = linkedList;
