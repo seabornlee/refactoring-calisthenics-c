@@ -23,10 +23,10 @@ TEST(ApplicationTest, employers_should_be_able_to_publish_a_job) {
     pJob->jobType = JReq;
     execute(pApplication, PUBLISH, newEmployer(employerName), pJob, NULL, NULL, NULL);
     LinkedList *jobs = getJobs(pApplication, employerName, PUBLISHED);
-    LinkedList *job = static_cast<LinkedList *>(getItem(jobs, 0));
+    Job *job = static_cast<Job *>(getItem(jobs, 0));
 
-    ASSERT_STREQ("高级前端开发", (char *) getItem(job, 0));
-    ASSERT_STREQ("JReq", (char *) getItem(job, 1));
+    ASSERT_STREQ("高级前端开发", job->name);
+    ASSERT_EQ(JReq, job->jobType);
 }
 
 TEST(ApplicationTest, employers_should_only_be_able_to_see_jobs_published_by_them) {
@@ -44,8 +44,8 @@ TEST(ApplicationTest, employers_should_only_be_able_to_see_jobs_published_by_the
     execute(pApplication, PUBLISH, newEmployer(employerTencent), pJobJuniorJavaDev, NULL, NULL, NULL);
     LinkedList *jobs = getJobs(pApplication, employerAlibaba, PUBLISHED);
     ASSERT_EQ(1, len(jobs));
-    LinkedList *job = (LinkedList *) getItem(jobs, 0);
-    ASSERT_STREQ("高级Java开发", (char *) getItem(job, 0));
+    Job *job = (Job *) getItem(jobs, 0);
+    ASSERT_STREQ("高级Java开发", job->name);
 }
 
 TEST(ApplicationTest, employers_should_be_able_to_publish_ATS_jobs) {
@@ -57,9 +57,9 @@ TEST(ApplicationTest, employers_should_be_able_to_publish_ATS_jobs) {
     pJob->jobType = ATS;
     execute(pApplication, PUBLISH, newEmployer(employerAlibaba), pJob, NULL, NULL, NULL);
     LinkedList *jobs = getJobs(pApplication, employerAlibaba, PUBLISHED);
-    LinkedList *job = (LinkedList *) getItem(jobs, 0);
-    ASSERT_STREQ("高级Java开发", (char *) getItem(job, 0));
-    ASSERT_STREQ("ATS", (char *) getItem(job, 1));
+    Job *job = (Job *) getItem(jobs, 0);
+    ASSERT_STREQ("高级Java开发", job->name);
+    ASSERT_EQ(ATS, job->jobType);
 }
 
 TEST(ApplicationTest, jobseekers_should_be_able_to_save_jobs_published_by_employers_for_later_review) {
@@ -74,10 +74,10 @@ TEST(ApplicationTest, jobseekers_should_be_able_to_save_jobs_published_by_employ
     execute(pApplication, SAVE, NULL, pJob, newJobSeeker(jobSeekerName), NULL, NULL);
 
     LinkedList *jobs = getJobs(pApplication, jobSeekerName, PUBLISHED);
-    LinkedList *job = (LinkedList *) getItem(jobs, 0);
+    Job *job = (Job *) getItem(jobs, 0);
 
-    ASSERT_STREQ("高级Java开发", (char *) getItem(job, 0));
-    ASSERT_STREQ("JReq", (char *) getItem(job, 1));
+    ASSERT_STREQ("高级Java开发", job->name);
+    ASSERT_EQ(JReq, job->jobType);
 }
 
 TEST(Application, jobseekers_should_be_able_to_apply_for_an_ATS_job_some_employer_published_without_a_resume) {
@@ -102,18 +102,18 @@ TEST(Application, jobseekers_should_be_able_to_apply_for_an_ATS_job_some_employe
             "2020-01-01");
     LinkedList *jobs = getJobs(pApplication, jobSeekerName, APPLIED);
 
-    LinkedList *job1 = (LinkedList *) getItem(jobs, 0);
+    JobApplication *pJobApplication1 = (JobApplication *) getItem(jobs, 0);
 
-    ASSERT_STREQ("Java开发", (char *) getItem(job1, 0));
-    ASSERT_STREQ("ATS", (char *) getItem(job1, 1));
-    ASSERT_STREQ("2020-01-01", (char *) getItem(job1, 2));
-    ASSERT_STREQ("Alibaba", (char *) getItem(job1, 3));
+    ASSERT_STREQ("Java开发", pJobApplication1->job->name);
+    ASSERT_EQ(ATS, pJobApplication1->job->jobType);
+    ASSERT_STREQ("2020-01-01", pJobApplication1->applicationTime);
+    ASSERT_STREQ("Alibaba", pJobApplication1->employer->name);
 
-    LinkedList *job2 = (LinkedList *) getItem(jobs, 1);
-    ASSERT_STREQ("高级Java开发", (char *) getItem(job2, 0));
-    ASSERT_STREQ("ATS", (char *) getItem(job2, 1));
-    ASSERT_STREQ("2020-01-01", (char *) getItem(job2, 2));
-    ASSERT_STREQ("Alibaba", (char *) getItem(job2, 3));
+    JobApplication *pJobApplication2 = (JobApplication *) getItem(jobs, 1);
+    ASSERT_STREQ("高级Java开发", pJobApplication2->job->name);
+    ASSERT_EQ(ATS, pJobApplication2->job->jobType);
+    ASSERT_STREQ("2020-01-01", pJobApplication2->applicationTime);
+    ASSERT_STREQ("Alibaba", pJobApplication2->employer->name);
 }
 
 TEST(ApplicationTest, jobseekers_should_not_be_able_to_apply_for_an_JReq_job_some_employer_published_without_a_resume) {

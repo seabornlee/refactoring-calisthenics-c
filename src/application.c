@@ -65,10 +65,10 @@ int getUnsuccessfulApplications(Application *pApplication, Employer *employer, J
 int getCountByEmployerAndJobName(const Employer *employer, const Job *pJob, const LinkedList *list) {
     int count = 0;
     for (int i = 0; i < len(list); ++i) {
-        LinkedList *job = getItem(list, i);
+        JobApplication *pJobApplication = getItem(list, i);
 
-        char *_jobName = getItem(job, 0);
-        if (strcmp(pJob->name, _jobName) == 0 && strcmp(employer->name, getItem(job, 3)) == 0) {
+        char *_jobName = pJobApplication->job->name;
+        if (strcmp(pJob->name, _jobName) == 0 && strcmp(employer->name, pJobApplication->employer->name) == 0) {
             count++;
         }
     }
@@ -99,12 +99,17 @@ execute(Application *application, enum Command command, Employer *employer, Job 
 int apply(const Application *application, const Employer *employer, const Job *pJob, const JobSeeker *jobSeeker,
           const Resume *resume, const char *applicationTime) {
     if (pJob->jobType == JReq && resume == NULL) {
-        LinkedList *failedApplication = newLinkedList();
-        addLast(failedApplication, pJob->name);
-        addLast(failedApplication, toStrJobType(pJob->jobType));
-        addLast(failedApplication, applicationTime);
-        addLast(failedApplication, employer->name);
-        addLast(application->failedApplications, failedApplication);
+        JobApplication *pJobApplication = newJobApplication(pJob, employer, applicationTime);
+        LinkedList *node = newLinkedList();
+
+        node->element = pJobApplication;
+
+        LinkedList *lastNode = application->failedApplications;
+        while (lastNode->next != NULL) {
+            lastNode = lastNode->next;
+        }
+
+        lastNode->next = node;
         printf("需要提供简历才能申请 JReq 类型的工作\r\n");
         return 401;
     }

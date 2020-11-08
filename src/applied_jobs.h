@@ -5,6 +5,7 @@
 #include "employer.h"
 #include "job.h"
 #include "job_seeker.h"
+#include "job_application.h"
 
 typedef struct applied_jobs {
     LinkedMap *applied;

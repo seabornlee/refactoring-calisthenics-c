@@ -14,12 +14,8 @@ Jobs *newJobs() {
 }
 
 void publishJob(Jobs *jobs, Employer *employer, Job *pJob) {
-    LinkedList *job = newLinkedList();
-    addLast(job, pJob->name);
-    addLast(job, toStrJobType(pJob->jobType));
-
     LinkedList *alreadyPublished = getOrDefault(jobs->jobs, employer->name, newLinkedList());
-    addLast(alreadyPublished, job);
+    addLast(alreadyPublished, pJob);
 
     putItem(jobs->jobs, employer->name, alreadyPublished);
 }
@@ -29,12 +25,8 @@ LinkedList *getPublishedJobs(Jobs *jobs, Employer *employer) {
 }
 
 void saveJob(Jobs *jobs, Job *pJob, JobSeeker *jobSeeker) {
-    LinkedList *job = newLinkedList();
-    addLast(job, pJob->name);
-    addLast(job, toStrJobType(pJob->jobType));
-
     LinkedList *saved = getOrDefault(jobs->jobs, jobSeeker->name, newLinkedList());
-    addLast(saved, job);
+    addLast(saved, pJob);
 
     putItem(jobs->jobs, jobSeeker->name, saved);
 }
