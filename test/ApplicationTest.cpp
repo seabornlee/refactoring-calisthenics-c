@@ -7,7 +7,7 @@ extern "C" {
 
 char *now() {
     std::time_t t = std::time(0);   // get time now
-    std::tm* now = std::localtime(&t);
+    std::tm *now = std::localtime(&t);
 
     char buf[256] = {0};
     sprintf(buf, "%d-%d-%d", now->tm_year, now->tm_mon + 1, now->tm_mday);
@@ -152,34 +152,25 @@ TEST(ApplicationTest, employers_should_be_able_to_find_applicants_to_a_job_by_ap
     char *seniorJavaDevJob = "高级Java开发";
     Application *pApplication = newApplication();
     execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "ATS", NULL, NULL, NULL);
-
-    struct tm from1997 = {0};
-    strptime("1997-07-01", "%Y-%m-%d", &from1997);
     execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerJacky, NULL, "1997-07-01");
-
-    struct tm from1999 = {0};
-    strptime("1999-12-20", "%Y-%m-%d", &from1999);
     execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerHo, NULL, "1999-12-20");
+
     LinkedList *applicants = findApplicantsFrom(pApplication, NULL, employerAlibaba, "1999-12-20");
 
     ASSERT_STREQ("Ho", (char *) getItem(applicants, 0));
 }
 
-TEST(ApplicationTest, employers_should_be_able_to_find_applicants_to_a_job_by_period_when_period_end_is_given_while_period_start_is_not) {
+TEST(ApplicationTest,
+     employers_should_be_able_to_find_applicants_to_a_job_by_period_when_period_end_is_given_while_period_start_is_not) {
     char *employerAlibaba = "Alibaba";
     char *jobSeekerJacky = "Jacky";
     char *jobSeekerHo = "Ho";
     char *seniorJavaDevJob = "高级Java开发";
     Application *pApplication = newApplication();
     execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "ATS", NULL, NULL, NULL);
-
-    struct tm from1997 = {0};
-    strptime("1997-07-01", "%Y-%m-%d", &from1997);
     execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerJacky, NULL, "1997-07-01");
-
-    struct tm from1999 = {0};
-    strptime("1999-12-20", "%Y-%m-%d", &from1999);
     execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerHo, NULL, "1999-12-20");
+
     LinkedList *applicants = findApplicantsIn(pApplication, NULL, employerAlibaba, NULL, "1999-12-20");
 
     ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
@@ -192,16 +183,34 @@ TEST(ApplicationTest, employers_should_be_able_to_find_applicants_to_a_job_by_pe
     char *seniorJavaDevJob = "高级Java开发";
     Application *pApplication = newApplication();
     execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "ATS", NULL, NULL, NULL);
-
-    struct tm from1997 = {0};
-    strptime("1997-07-01", "%Y-%m-%d", &from1997);
     execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerJacky, NULL, "1997-07-01");
-
-    struct tm from1999 = {0};
-    strptime("1999-12-20", "%Y-%m-%d", &from1999);
     execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "ATS", jobSeekerHo, NULL, "1999-12-20");
+
     LinkedList *applicants = findApplicantsIn(pApplication, NULL, employerAlibaba, "1997-07-01", "1999-12-20");
 
     ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
     ASSERT_STREQ("Ho", (char *) getItem(applicants, 1));
+}
+
+
+TEST(ApplicationTest,
+     employers_should_be_able_to_find_applicants_to_a_job_by_job_name_and_period_when_period_start_is_given_while_period_end_is_not) {
+    char *employerAlibaba = "Alibaba";
+    char *jobSeekerJacky = "Jacky";
+    char *resumeApplicantName = "Jacky";
+    char *jobSeekerHo = "Ho";
+    char *seniorJavaDevJob = "高级Java开发";
+    char *juniorJavaDevJob = "Java开发";
+
+    Application *pApplication = newApplication();
+    execute(pApplication, "publish", employerAlibaba, juniorJavaDevJob, "ATS", NULL, NULL, NULL);
+    execute(pApplication, "publish", employerAlibaba, seniorJavaDevJob, "JReq", NULL, NULL, NULL);
+
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerJacky, NULL, "1997-07-01");
+    execute(pApplication, "apply", employerAlibaba, seniorJavaDevJob, "JReq", jobSeekerJacky, resumeApplicantName, "1999-12-20");
+    execute(pApplication, "apply", employerAlibaba, juniorJavaDevJob, "ATS", jobSeekerHo, NULL, "1999-12-20");
+
+    LinkedList *applicants = findApplicantsFrom(pApplication, seniorJavaDevJob, employerAlibaba, "1999-12-20");
+
+    ASSERT_STREQ("Jacky", (char *) getItem(applicants, 0));
 }
